@@ -1,16 +1,12 @@
-import express from "express";
-import cors from "cors";
-import routes from "./routes/index.js";
-import dotenv from "dotenv";
-import passport from "passport";
-import "./config/database.js";
-import "./database/connect.js";
-import "./config/passaport.js";
+const express = require("express");
+const cors = require("cors");
+const routes = require("./routes/index.js");
+const dotenv = require("dotenv");
 
 dotenv.config();
+
 const app = express();
 app.use(cors());
-app.use(passport.initialize());
 app.use(express.json());
 app.use("/api", routes);
 
