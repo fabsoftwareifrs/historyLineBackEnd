@@ -9,7 +9,7 @@ module.exports = {
         userId: newUser.id,
         userName: newUser.name,
       };
-      const token = jwt.sign(payLoad, "cuslargos", { expiresIn: 400 });
+      const token = jwt.sign(payLoad, "QWERTY", { expiresIn: 400 });
       return token;
     } catch (error) {
       throw new Error(error);
