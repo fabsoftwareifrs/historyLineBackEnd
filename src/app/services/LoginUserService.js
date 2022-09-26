@@ -10,7 +10,7 @@ module.exports = {
         userId: user.id,
         userName: user.name,
       };
-      const token = jwt.sign(payLoad, "cuslargos", { expiresIn: "1h" });
+      const token = jwt.sign(payLoad, "QWERTY", { expiresIn: "1h" });
       res
         .json({
           msg: "Login successful",
