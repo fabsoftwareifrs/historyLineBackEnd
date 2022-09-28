@@ -4,13 +4,15 @@ const CreateUser = require("../services/CreateUserService.js");
 module.exports = {
   async store(req, res) {
     await schemaStore.validate(req.body);
-    const { email, name, password } = req.body;
+    const { email, name, password_hash } = req.body;
+    console.log(password_hash);
     try {
-      const userCreateToken = await CreateUser.storeUser({
+      const userCreateToken = await CreateUser.storeUser(
         name,
         email,
-        password,
-      });
+        password_hash
+      );
+
       res.json({
         token: userCreateToken,
         authenticated: true,

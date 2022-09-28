@@ -6,7 +6,7 @@ const schemaStore = yup.object().shape({
     .string()
     .required("Error: O campo email é obrigario")
     .email("O campo email precisa ser uma email"),
-  password_hash: yup
+    password_hash: yup
     .string()
     .required("Error: O campo senha é obrigario")
     .min(5, "A senha deve ter no minino 5 digitos"),

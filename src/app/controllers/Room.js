@@ -7,7 +7,6 @@ module.exports = {
     const token = authHeader && authHeader.split(" ")[1];
     const decodeJwt = await jwt.decode(token);
     const { name, privater } = req.body;
-
     const newRoom = await Room.create(
       {
         name,
@@ -22,6 +21,9 @@ module.exports = {
         ],
       }
     );
+
+    const oi = newRoom.id;
+    console.log(oi);
   },
   async getRoom(req, res) {
     const { id } = req.params;

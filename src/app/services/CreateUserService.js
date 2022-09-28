@@ -1,10 +1,13 @@
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
 const { User, Room } = require("../models/index.js");
+const dotenv = require("dotenv");
+
+dotenv.config();
 module.exports = {
-  async storeUser({ name, email, password }) {
+  async storeUser(name, email, passwordHash) {
     try {
-      const newUser = await User.create({ name, email, password });
+      const newUser = await User.create({ name, email, passwordHash });
       const payLoad = {
         userId: newUser.id,
         userName: newUser.name,
@@ -14,7 +17,8 @@ module.exports = {
       });
       return token;
     } catch (error) {
-      throw new Error(error);
+      console.log(error);
+      throw new Error(error.menssage);
     }
   },
 };
