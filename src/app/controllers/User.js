@@ -1,4 +1,5 @@
 const { schemaStore } = require("../validate");
+require("dotenv").config();
 const CreateUser = require("../services/CreateUserService.js");
 module.exports = {
   async store(req, res) {
@@ -36,7 +37,7 @@ module.exports = {
           userId: user.id,
           userName: user.name,
         };
-        const token = jwt.sign(payLoad, "cuslargos");
+        const token = jwt.sign(payLoad, process.env.SECRET_KEY);
         res
           .json({
             msg: "Login successful",
