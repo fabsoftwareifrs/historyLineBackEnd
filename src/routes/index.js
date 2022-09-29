@@ -10,6 +10,7 @@ routes
   )
   .get("/user/:id", UserController.getUser)
   .get("/room/:id", RoomController.getRoom)
+  .get("/data/:id", RoomController.getData)
   .post("/room", checkToken, RoomController.createRoom)
   .post("/user", UserController.store)
   .post("/user/auth", UserController.auth)

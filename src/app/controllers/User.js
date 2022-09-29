@@ -1,18 +1,13 @@
 const { schemaStore } = require("../validate");
 require("dotenv").config();
 const CreateUser = require("../services/CreateUserService.js");
+
 module.exports = {
   async store(req, res) {
     await schemaStore.validate(req.body);
-    const { email, name, password_hash } = req.body;
-    console.log(password_hash);
+    const { email, name, password } = req.body;
     try {
-      const userCreateToken = await CreateUser.storeUser(
-        name,
-        email,
-        password_hash
-      );
-
+      const userCreateToken = await CreateUser.storeUser(name, email, password);
       res.json({
         token: userCreateToken,
         authenticated: true,

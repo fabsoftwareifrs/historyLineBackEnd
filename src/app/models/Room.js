@@ -4,13 +4,14 @@ module.exports = (sequelize, DataTypes) => {
   class Room extends Model {
     static associate(models) {
       Room.belongsTo(models.User, { foreignKey: "userId" });
+      Room.hasMany(models.Data, { foreignKey: "roomId" });
     }
   }
   Room.init(
     {
       name: DataTypes.STRING,
-      user_id: DataTypes.INTEGER,
       privater: DataTypes.BOOLEAN,
+      user_id: DataTypes.INTEGER,
     },
     {
       sequelize,
