@@ -1,6 +1,7 @@
 const { schemaStore } = require("../validate");
 require("dotenv").config();
 const CreateUser = require("../services/CreateUserService.js");
+const { User, Room } = require("../models/index.js");
 
 module.exports = {
   async store(req, res) {
