@@ -1,6 +1,6 @@
 require("dotenv").config();
 module.exports = {
-  async login() {
+  async login({ email, password }) {
     const user = await User.findOne({
       where: {
         email,

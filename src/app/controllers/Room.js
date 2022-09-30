@@ -1,64 +1,49 @@
-const { User, Room, Data } = require("../models/index.js");
-const jwt = require("jsonwebtoken");
-const { sequelize } = require("../models/index.js");
+const { Room, Data } = require("../models/");
+const { createRoom } = require("../services/CreateRoomService");
+const { getToken } = require("../hooks/getToken.js");
 module.exports = {
-  async createRoom(req, res) {
-    const authHeader = req.headers["authorization"];
-    const token = authHeader && authHeader.split(" ")[1];
-    const decodeJwt = await jwt.decode(token);
-    const { name, privater, year, data } = req.body;
-    const t = await sequelize.transaction();
-
+  async create(req, res) {
+    const { name, privater, data } = req.body;
+    const payLoad = await getToken(req);
+    const user_id = payLoad.userId;
     try {
-      const newRoom = await Room.create(
-        {
-          name,
-          privater,
-          user_id: decodeJwt.userId,
-        },
-        {
-          transaction: t,
-        }
-      );
-
-      const formatedData = data.map((element) => {
-        return { data: element.data, year: element.year, room_id: newRoom.id };
+      const RoomCreate = await createRoom({
+        name,
+        privater,
+        user_id,
+        data,
       });
-
-      const newData = await Data.bulkCreate(formatedData, {
-        transaction: t,
+      res.json({
+        created: true,
+        RoomName: RoomCreate.name,
       });
-
-      res.send({
-        message: "Sala criada com sucesso",
-        newRoom,
-        newData,
-      });
-      await t.commit();
     } catch (error) {
-      await t.rollback();
-      console.log(error);
+      res
+        .json({
+          created: false,
+          error: error.message,
+        })
+        .status(501);
     }
   },
-  async getRoom(req, res) {
-    const { id } = req.params;
-    const room = await Room.findByPk(id, { include: User });
+  async getAllRooms(req, res) {
+    const payLoad = await getToken(req);
+    const user_id = payLoad.userId;
+    const room = await Room.findAll({
+      where: {
+        user_id,
+      },
+    });
     if (!room) {
       return res.json({ message: "Sala não encontrada" }).status(501);
     } else {
       res.json(room);
     }
   },
-  async getData(req, res) {
-    const { id } = req.params;
-    const selectData = await Data.findAll({
-      where: { room_id: id },
-      include: Room,
-    });
-    if (!selectData) {
-      return res.json({ message: "Sala não encontrada" }).status(501);
-    } else {
-      res.json(selectData);
-    }
+  async delete(req, res) {
+    // Delete Function ...
+  },
+  async alter(req, res) {
+    // alter Function ...
   },
 };
