@@ -14,5 +14,7 @@
 
 - [x] User registration
 - [x] User login
-- [ ] Registration of rooms
+- [x] Registration of rooms
+- [ ] Create game routes
+- [ ] Attempts and points recorder
 
