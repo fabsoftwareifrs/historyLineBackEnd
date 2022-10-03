@@ -1,40 +1,40 @@
 const HttpResponse = require("../http/httpResponse.js");
-const { Room, Data } = require("../models");
+const { Room } = require("../models");
 const { createRoom } = require("../services/CreateRoomService");
 module.exports = {
   async create(req, res) {
-    const { name, privater, data } = req.body;
-    const user_id = req.userId;
-    const RoomData = {
-      name,
-      privater,
-      user_id,
-    };
+    const { userId } = req;
+    const { name, privater, data, password } = req.body;
+
+    if (privater && !password)
+      return HttpResponse.badRequest(
+        res,
+        "you need a password to create your room private"
+      );
+
     try {
-      const RoomCreate = await createRoom(RoomData, data);
-      HttpResponse.ok(res, RoomCreate);
+      const room = await createRoom(
+        {
+          name,
+          privater,
+          userId,
+          password,
+        },
+        data
+      );
+      HttpResponse.ok(res, room);
     } catch (error) {
       HttpResponse.badRequest(res, error.message);
     }
   },
-
-  async getAllRooms(req, res) {
-    const user_id = req.userId;
-    const room = await Room.findAll({
-      where: {
-        user_id,
-      },
-    });
-    if (!room) {
+  async getRoom(req, res) {
+    const { id } = req.params;
+    const user = await User.findByPk(id, { include: Room });
+    console.log(user);
+    if (!user) {
       return res.json({ message: "Sala não encontrada" }).status(501);
     } else {
-      res.json(room);
+      res.json(user);
     }
-  },
-  async delete(req, res) {
-    // Delete Function ...
-  },
-  async alter(req, res) {
-    // alter Function ...
   },
 };
