@@ -1,30 +1,21 @@
 const { sequelize } = require("../models/index.js");
 const { Room, Data } = require("../models/index.js");
 module.exports = {
-  async createRoom({ name, privater, user_id, data }) {
+  async createRoom(userData, dataHistory) {
     const transaction = await sequelize.transaction();
     try {
-      const newRoom = await Room.create(
-        {
-          name,
-          privater,
-          user_id,
-        },
-        {
-          transaction,
-        }
-      );
+      const newRoom = await Room.create(userData, { transaction });
 
-      const formatedData = data.map((element) => {
-        return { data: element.data, year: element.year, room_id: newRoom.id };
+      const formattedDataHistory = dataHistory.map(({ data, year }) => {
+        return { data, year, room_id: newRoom.id };
       });
 
-      const newData = await Data.bulkCreate(formatedData, {
+      await Data.bulkCreate(formattedDataHistory, {
         transaction,
       });
 
       await transaction.commit();
-      return newRoom;
+      return { newRoom, Data };
     } catch (error) {
       await transaction.rollback();
       throw new Error(error);

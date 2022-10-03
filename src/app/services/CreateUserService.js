@@ -6,15 +6,17 @@ module.exports = {
   async storeUser({ name, email, password }) {
     const saltRounds = 12;
     const passwordHash = await bcrypt.hash(password, saltRounds);
+    const userData = {
+      name,
+      email,
+      passwordHash,
+    };
     try {
-      const newUser = await User.create({
-        name,
-        email,
-        passwordHash,
-      });
+      const newUser = await User.create(userData);
+      const { id, name } = newUser;
       const payLoad = {
-        userId: newUser.id,
-        userName: newUser.name,
+        userId: id,
+        userName: name,
       };
       const token = jwt.sign(payLoad, process.env.SECRET_KEY, {
         expiresIn: "1h",
