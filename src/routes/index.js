@@ -8,9 +8,9 @@ const routes = express.Router();
 routes
   .get("/", (req, res) => res.json({ message: "Welcome to API historyLine" }))
   .get("/user/:id", UserController.getUser)
-  .get("/room", checkToken, RoomController.getAllRooms)
+  .get("/room", checkToken, RoomController.getAllRoom)
   .post("/room", checkToken, RoomController.create)
-  .delete("/room", checkToken, RoomController.delete)
+  .delete("/room/:id", checkToken, RoomController.delete)
   .post("/user", UserController.store)
   .post("/user/auth", AuthController.auth);
 module.exports = routes;

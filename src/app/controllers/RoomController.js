@@ -30,11 +30,21 @@ module.exports = {
   async getRoom(req, res) {
     const { id } = req.params;
     const user = await User.findByPk(id, { include: Room });
-    console.log(user);
-    if (!user) {
+    if (!user) return res.json({ message: "Sala não encontrada" }).status(501);
+    res.json(user);
+  },
+  async getAllRoom(req, res) {
+    const userId = req.userId;
+    const rooms = await Room.findAll({ where: { userId } });
+    if (rooms.length === 0)
+      return res.json({ message: "Você não possui salas" }).status(501);
+    HttpResponse.ok(res, rooms);
+  },
+  async delete(req, res) {
+    const { id } = req.params;
+    const deleteUser = await Room.destroy({ where: { id } });
+    if (!deleteUser)
       return res.json({ message: "Sala não encontrada" }).status(501);
-    } else {
-      res.json(user);
-    }
+    HttpResponse.ok(res, deleteUser);
   },
 };

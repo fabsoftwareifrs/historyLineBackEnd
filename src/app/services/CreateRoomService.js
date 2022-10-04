@@ -4,11 +4,10 @@ module.exports = {
     try {
       const newRoom = await Room.create(
         { ...userData, Data: dataHistory },
-        { include: { model: Data }, transaction }
+        { include: { model: Data } }
       );
       return { newRoom, Data };
     } catch (error) {
-      await transaction.rollback();
       throw new Error(error);
     }
   },

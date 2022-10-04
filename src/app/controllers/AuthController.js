@@ -11,12 +11,11 @@ module.exports = {
         where: { email },
       });
 
-      if (!user) return res;
-      httpResponse.badRequest(res, "Usuario não encontrado");
+      if (!user) return HttpResponse.badRequest(res, "Usuario não encontrado");
 
       const passwordVerif = await bcrypt.compare(password, user.passwordHash);
       if (!passwordVerif)
-        return httpResponse.badRequest(
+        return HttpResponse.badRequest(
           res,
           "Falha na autenticação, usuario ou senha invalidos"
         );
