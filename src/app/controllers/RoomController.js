@@ -1,27 +1,20 @@
 const HttpResponse = require("../http/httpResponse.js");
-const { Room} = require("../models");
+const { Room } = require("../models");
 const { createRoom } = require("../services/CreateRoomService");
 const { getAll } = require("../services/GetAllRoomService.js");
 const { deleteRoom } = require("../services/DeleteRoomService.js");
-
+const { v4: uuidv4 } = require("uuid");
 module.exports = {
   async create(req, res) {
     const { userId } = req;
-    const { name, privater, data, password } = req.body;
-
-    if (privater && !password)
-      return HttpResponse.badRequest(
-        res,
-        "Você precisa de uma senha"
-      );
-
+    const { name, privater, data } = req.body;
     try {
       const room = await createRoom(
         {
           name,
           privater,
           userId,
-          password,
+          password: privater ? uuidv4().split("-")[0] : null,
         },
         data
       );
@@ -47,7 +40,7 @@ module.exports = {
     try {
       const roomDelete = deleteRoom(id);
       HttpResponse.ok(res, roomDelete);
-    } catch (error) { }
+    } catch (error) {}
     HttpResponse.ok(res, deleteUser);
   },
   async update(req, res) {

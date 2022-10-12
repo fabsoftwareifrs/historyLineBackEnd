@@ -1,9 +1,9 @@
 const { Room, Data } = require("../models/index.js");
 module.exports = {
-  async createRoom(userData, dataHistory) {
+  async createRoom(roomData, dataHistory) {
     try {
       const newRoom = await Room.create(
-        { ...userData, Data: dataHistory },
+        { ...roomData, Data: dataHistory },
         { include: { model: Data } }
       );
       return { newRoom, Data };
@@ -12,5 +12,3 @@ module.exports = {
     }
   },
 };
-
-

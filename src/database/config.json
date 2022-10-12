@@ -1,7 +1,7 @@
 {
   "development": {
     "username": "root",
-    "password": "1234",
+    "password": "",
     "database": "mydbteste",
     "define": {
       "timestamps": true,
