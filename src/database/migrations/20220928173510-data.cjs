@@ -13,6 +13,10 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
+      hint:{
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
       year: {
         type: Sequelize.INTEGER,
         allowNull: false,

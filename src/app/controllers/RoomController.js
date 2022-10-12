@@ -1,5 +1,5 @@
 const HttpResponse = require("../http/httpResponse.js");
-const { Room } = require("../models");
+const { Room} = require("../models");
 const { createRoom } = require("../services/CreateRoomService");
 const { getAll } = require("../services/GetAllRoomService.js");
 const { deleteRoom } = require("../services/DeleteRoomService.js");
@@ -33,7 +33,7 @@ module.exports = {
   async getAllRoom(req, res) {
     const userId = req.userId;
     try {
-      const rooms = getAll(userId);
+      const rooms = await getAll(userId);
       if (rooms.length === 0)
         return HttpResponse.ok(res, "Você não possui salas");
       HttpResponse.ok(res, rooms);
@@ -52,14 +52,20 @@ module.exports = {
   },
   async update(req, res) {
     const { id } = req.params;
-    const { name, privater, password } = req.body;
-
-    const updateRoom = await Room.update(
-      { name, privater, password },
-      {
-        Where: { id },
-      }
-    );
-    HttpResponse.ok(res, updateRoom);
+    const { name, privater, password, data } = req.body;
+    if (privater && !password)
+      return HttpResponse.badRequest(
+        res,
+        "you need a password to create your room private"
+      );
+    try {
+      const updateRoom = await Room.update(
+        { name, password: !privater ? null : password, privater, data },
+        { where: { id } }
+      );
+      HttpResponse.ok(res, updateRoom);
+    } catch (error) {
+      HttpResponse.ServerError(res, error.message);
+    }
   },
 };

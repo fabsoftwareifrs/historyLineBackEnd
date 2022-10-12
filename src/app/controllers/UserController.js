@@ -47,4 +47,15 @@ module.exports = {
     }
     res.json(user);
   },
+  async update(req, res) {
+    const { id } = req.params;
+    const { name } = req.body;
+    const user = await User.update({ name }, { where: { id } });
+    if (!user) {
+      return res.json({ message: "Usuario não encontrada" }).status(501);
+    } else {
+ 
+      res.json(user);
+    }
+  },
 };

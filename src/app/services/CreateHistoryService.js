@@ -1,8 +1,9 @@
 const { HistoryData } = require("../models/index.js");
 module.exports = {
-  async storeHistory({ data, year, room_id }) {
+  async storeHistory({ data, year, hint, room_id }) {
     const historyData = {
       data,
+      hint,
       year,
       room_id,
     };
