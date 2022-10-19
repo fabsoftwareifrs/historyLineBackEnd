@@ -16,12 +16,15 @@ module.exports = (sequelize, DataTypes) => {
       sequelize,
       modelName: "User",
     }
-  );
-  // User.beforeSave(async (user) => {
-  //   if (user.password) {
-  //     user.passwordHash = await bcrypt.hash(user.password, 8);
-  //   }
-  // });
+  ),
+    {
+      indexes: [
+        {
+          unique: true,
+          fields: ["email"],
+        },
+      ],
+    };
 
   return User;
 };
