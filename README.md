@@ -1,6 +1,6 @@
-# This is API of the game HistoryLine:
+# This is the API of the game HistoryLine:
 
-<h3>Technology: </h3>
+<h3>Technologies: </h3>
 <ul align="center">
  <li href="#roadmap">NodeJs</li> 
  <li href="#tecnologias">JWT</li> 
@@ -14,7 +14,7 @@
 
 - [x] User registration
 - [x] User login
-- [x] Registration of rooms
+- [x] Room registration
 - [x] Create game routes
 - [ ] Attempts and points recorder
 
