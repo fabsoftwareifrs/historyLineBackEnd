@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 
 const { schemaStore } = require("../validation");
-const { storeUser } = require("../services/CreateUserService.js");
+const { storeUser } = require("../useCase/user");
 const HttpResponse = require("../http/httpResponse.js");
 const { User, Room } = require("../models/index.js");
 
@@ -28,7 +28,6 @@ module.exports = {
   async getUser(req, res) {
     const { id } = req.params;
     const user = await User.findByPk(id, { include: Room });
-    console.log(user);
     if (!user) {
       return res.json({ message: "Usuario não encontrada" }).status(501);
     } else {
@@ -40,8 +39,11 @@ module.exports = {
     const { name, privater, password } = req.body;
     const data = { name, privater, password };
     try {
-      const userUpdate = await User.update({ name, privater, password }, { where: { id } });
-      HttpResponse.ok(res, userUpdate)
+      const userUpdate = await User.update(
+        { name, privater, password },
+        { where: { id } }
+      );
+      HttpResponse.ok(res, userUpdate);
     } catch (error) {
       HttpResponse.serverError(res, error.message);
     }
@@ -54,7 +56,6 @@ module.exports = {
     if (!user) {
       return res.json({ message: "Usuario não encontrada" }).status(501);
     } else {
- 
       res.json(user);
     }
   },

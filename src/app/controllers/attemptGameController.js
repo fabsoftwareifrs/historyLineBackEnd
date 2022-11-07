@@ -1,125 +1,152 @@
 const HttpResponse = require("../http/httpResponse.js");
 const { User, Room, Data, UsersRooms } = require("../models/");
-// const { updateUser } = require("../services/UpdateUserService.js");
-// const { Op } = require("sequelize");
+const calcYear = require("../functions/calcYear.js");
+const { updateUser } = require("../services/UpdateUserService.js");
+const { Op } = require("sequelize");
 
 module.exports = {
   async playerTry(req, res) {
-    const { dataYear, dataIndex, roomIndex, datas, user } = req.body;
+    const { dataYear, id, roomIndex, datas } = req.body;
+    const { userId } = req;
     const userExist = await UsersRooms.findOne({
-      where: { room_id: roomIndex, user_id: user },
+      where: { room_id: roomIndex, user_id: userId },
     });
-
+    const dataIds = datas.map((e) => e.id);
     if (!userExist) {
       await UsersRooms.create(
         {
           roomId: roomIndex,
-          userId: user,
+          userId: userId,
         },
         { include: { model: Room, User } }
       );
     }
     try {
-      const answer = await Data.findOne({ where: { id: dataIndex } });
-      const allData = await Data.findAll({ where: { room_id: roomIndex } });
-      const originalDatas = allData.filter((e) => {
+      const answer = await Data.findOne({ where: { id: id } });
+      const thereDatas = await Data.findAll({
+        order: [["year", "ASC"]],
+        where: { room_id: roomIndex },
+      });
+
+      const originalDatas = thereDatas.filter((e) => {
         return datas.find((el) => el.id === e.id);
       });
-      if (dataYear !== answer.year && datas[0].id) {
-        const filtData = allData.filter((el) => {
-          return (
-            (el.year >= answer.year &&
-              el.year < originalDatas[datas.length - 1].year) ||
-            (el.year <= answer.year &&
-              el.year > originalDatas[datas.length - 1].year) ||
-            (dataYear > answer.year &&
-              dataYear > originalDatas[datas.length - 1].year &&
-              el.year >= answer.year &&
-              el.year > originalDatas[datas.length - 1].year) ||
-            (dataYear < answer.year &&
-              dataYear < originalDatas[datas.length - 1].year &&
-              el.year <= answer.year &&
-              el.year < originalDatas[datas.length - 1].year)
-          );
-        });
 
-        const rightData = filtData.map((e) => {
-          return Math.abs(e.year - dataYear);
-        });
+      const dataYears = originalDatas.map((e) => e.year);
 
-        const rightValue = allData.map((e) => {
-          return Math.abs(e.year - dataYear);
-        });
+      if (!originalDatas.length) {
+        return HttpResponse.badRequest(
+          res,
+          "Esses dados não existem nessa sala"
+        );
+      } else if (datas.length === thereDatas.length) {
+        return HttpResponse.badRequest(res, "Acabaram as tentativas!");
+      }
 
-        const ultraRightValue = rightValue.indexOf(Math.min(...rightData));
-
-        const resp = allData[ultraRightValue].year;
-
-        const leastYear = await Data.findOne({
-          where: {
-            year: resp,
-            room_id: roomIndex,
-          },
-        });
-        const { year, id, hint, data } = leastYear;
+      if (dataYear !== answer.year) {
         const newData = originalDatas.map((e) => {
-          const { year, id, data, hint } = e;
-          try {
-            return {
+          const { year, id, hint, data } = e;
+          return {
+            year,
+            id,
+            hint,
+            data,
+          };
+        });
+
+        const answerIndex = dataIds.indexOf(answer.id);
+        console.log(answerIndex);
+
+        const ascData = await Data.findAll({
+          attributes: ["year", "id", "hint", "data"],
+          order: [["year", "ASC"]],
+          where: { room_id: roomIndex },
+        });
+
+        const descData = await Data.findAll({
+          attributes: ["year", "id", "hint", "data"],
+          order: [["year", "desc"]],
+          where: { room_id: roomIndex },
+        });
+
+        const ascFormatedData = ascData.filter((el) => {
+          const filter = dataYears.find((e) => e === el.year);
+
+          return filter !== el.year;
+        });
+
+        const descFormatedData = descData.filter((el) => {
+          const filter = dataYears.find((e) => e === el.year);
+          return filter !== el.year;
+        });
+
+        if (dataYear < answer.year) {
+          let filtData = ascFormatedData.find((el) => {
+            return el.year >= dataYear;
+          });
+          if (!filtData) {
+            filtData = descFormatedData.find((el) => {
+              return el.year <= dataYear;
+            });
+          }
+          const { year, id, hint, data } = filtData;
+          console.log(filtData.year);
+
+          newData.splice(
+            filtData.year > answer.year ? answerIndex + 1 : answerIndex,
+            0,
+            {
               year,
               id,
-              data,
               hint,
-            };
+              data,
+              marquer: "Dado novo",
+            }
+          );
+          const calc = calcYear(...newData);
+          calc.map((e) => {
+            newData.map((element) => {
+              element.clacYear = e;
+            });
+          });
+          try {
+            HttpResponse.ok(res, newData);
           } catch (error) {
-            return HttpResponse.badRequest(res, error.message);
+            HttpResponse.badRequest(res, error.message);
           }
-        });
-
-        const filterData = newData.map((e) => {
-          return e.year;
-        });
-
-        if (!filterData.includes(resp) && resp !== answer.year) {
-          newData.push({
-            year,
-            id,
-            data,
-            hint,
-            marquer: "DADO NOVO",
+        } else if (dataYear > answer.year) {
+          let filtData = descFormatedData.find((el) => {
+            return el.year <= dataYear;
           });
-          HttpResponse.ok(res, newData);
-        } else if (year === answer.year) {
-          newData.push({
-            over: "GAME OVER!!",
-          });
-          HttpResponse.ok(res, newData);
-        } else {
-          HttpResponse.ok(res, newData);
-        }
-      } else if (!datas[0].id && answer.year !== dataYear) {
-        const rightValue = allData.map((e) => {
-          return Math.abs(e.year - dataYear);
-        });
-        const right = rightValue.indexOf(Math.min(...rightValue));
-        const resp = allData[right].year;
-        const leastYear = await Data.findOne({
-          where: {
-            year: resp,
-            room_id: roomIndex,
-          },
-        });
+          if (!filtData) {
+            filtData = descFormatedData.find((el) => {
+              return el.year > dataYear;
+            });
+          }
+          console.log(filtData.year);
+          const { year, id, hint, data } = filtData;
 
-        const { year, id, hint, data } = leastYear;
-        try {
-          return HttpResponse.ok(res, {
-            year,
-            id,
-            data,
-            hint,
+          newData.splice(
+            filtData.year > answer.year ? answerIndex + 1 : answerIndex,
+            0,
+            {
+              year,
+              id,
+              hint,
+              data,
+              marquer: "Dado novo",
+            }
+          );
+          const calc = calcYear(...newData);
+
+          calc.map((e, i) => {
+            newData[i].calcYear = e;
           });
-        } catch (error) {
-          return HttpResponse.badRequest(res, error.message);
+          try {
+            HttpResponse.ok(res, newData);
+          } catch (error) {
+            HttpResponse.badRequest(res, error.message);
+          }
         }
       } else if (dataYear === answer.year) {
         const rightDatas = datas.filter((e) => e.id).length + 1;
@@ -132,7 +159,7 @@ module.exports = {
             {
               where: {
                 room_id: roomIndex,
-                user_id: user,
+                user_id: userId,
               },
             }
           );

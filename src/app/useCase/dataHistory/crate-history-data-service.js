@@ -1,4 +1,4 @@
-const { HistoryData } = require("../models/index.js");
+const { HistoryData } = require("../../models/index.js");
 module.exports = {
   async storeHistory({ data, year, hint, room_id }) {
     const historyData = {

@@ -1,4 +1,4 @@
-const { Room, Data } = require("../models/index.js");
+const { Room, Data } = require("../../models/index.js");
 module.exports = {
   async createRoom(roomData, dataHistory) {
     try {

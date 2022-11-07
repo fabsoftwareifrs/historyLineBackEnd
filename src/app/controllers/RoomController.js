@@ -1,9 +1,8 @@
 const HttpResponse = require("../http/httpResponse.js");
 const { Room } = require("../models");
-const { createRoom } = require("../services/CreateRoomService");
-const { getAll } = require("../services/GetAllRoomService.js");
-const { deleteRoom } = require("../services/DeleteRoomService.js");
+const { createRoom, getAll, deleteRoom } = require("../useCase/room/index.js");
 const { v4: uuidv4 } = require("uuid");
+
 module.exports = {
   async create(req, res) {
     const { userId } = req;
